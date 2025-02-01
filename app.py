@@ -1,32 +1,27 @@
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, jsonify
 from rembg import remove
-from io import BytesIO
-import os
+import io
 
 app = Flask(__name__)
 
 @app.route('/remove-bg', methods=['POST'])
-def remove_bg():
-    try:
-        # Ensure the file is part of the request
-        if 'image_file' not in request.files:
-            return jsonify({"error": "No file part"}), 400
-        
-        file = request.files['image_file']
-        
-        if file.filename == '':
-            return jsonify({"error": "No selected file"}), 400
-        
-        # Read the image file and remove the background
-        img_data = file.read()
-        output = remove(img_data)
+def remove_background():
+    if 'image_file' not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
 
-        # Convert the result to an image
-        img = BytesIO(output)
-        return send_file(img, mimetype='image/png')
+    image_file = request.files['image_file']
+    
+    # Read the image as bytes
+    image_bytes = image_file.read()
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Remove the background
+    result = remove(image_bytes)
+
+    # Return the processed image as a response
+    return (result, 200, {
+        'Content-Type': 'image/png',
+        'Content-Disposition': 'attachment; filename=output.png'
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
