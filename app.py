@@ -4,6 +4,7 @@ import io
 
 app = Flask(__name__)
 
+# Route to handle POST request for background removal
 @app.route('/remove-bg', methods=['POST'])
 def remove_background():
     if 'image_file' not in request.files:
@@ -14,7 +15,7 @@ def remove_background():
     # Read the image as bytes
     image_bytes = image_file.read()
 
-    # Remove the background
+    # Process the image to remove the background
     result = remove(image_bytes)
 
     # Return the processed image as a response
